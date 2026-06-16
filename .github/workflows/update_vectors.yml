@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'data/varshith.json'
+  workflow_dispatch:  # allows manual trigger from GitHub Actions UI
 
 jobs:
   ingest:
