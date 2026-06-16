@@ -42,8 +42,14 @@ RATE_WINDOW = 3600    # seconds (1 hour)
 def get_allowed_origins() -> list[str]:
     raw = os.environ.get("ALLOWED_ORIGINS", "")
     origins = [o.strip() for o in raw.split(",") if o.strip()]
-    # Always allow localhost for local dev
-    return origins + ["http://localhost:3000", "http://localhost:5500", "http://127.0.0.1:5500"]
+    # Always allow localhost for local dev and HuggingFace Spaces
+    return origins + [
+        "http://localhost:3000",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "huggingface.co",
+        "hf.space",
+    ]
 
 
 def check_rate_limit(ip: str) -> None:

@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.git/
+.gitignore
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+*.log
+mlflow.db

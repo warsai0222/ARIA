@@ -23,7 +23,8 @@ if os.path.exists(".env"):
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from api.endpoints import chat, health, suggested
 from api.utils.hybrid_retrieval import warm_up
@@ -64,6 +65,14 @@ app.add_middleware(SecurityMiddleware)
 app.include_router(health.router, prefix="/api")
 app.include_router(suggested.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+
+# Serve frontend files
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
+
+@app.get("/chat")
+async def chat_page():
+    return FileResponse("frontend/chat.html")
 
 
 @app.get("/")
