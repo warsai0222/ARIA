@@ -29,14 +29,13 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 load_dotenv()
 
-from google import genai
-from google.genai import types as genai_types
+from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qdrant_models
 
 COLLECTION = "aria_chunks"
-VECTOR_DIM = 768
-EMBEDDING_MODEL = "text-embedding-004"
+VECTOR_DIM = 384
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 DATA_PATH = Path(__file__).resolve().parents[1] / "data" / "varshith.json"
 
 
@@ -152,28 +151,15 @@ def build_chunks(data: dict) -> list[dict]:
 # Embedding
 # ---------------------------------------------------------------------------
 
-def embed_text(text: str, retries: int = 3) -> list[float]:
-    """Embed a single text string using Google text-embedding-004."""
-    client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
-    for attempt in range(retries):
-        try:
-            result = client.models.embed_content(
-                model=EMBEDDING_MODEL,
-                contents=text,
-                config=genai_types.EmbedContentConfig(
-                    task_type="retrieval_document",
-                    output_dimensionality=VECTOR_DIM,
-                ),
-            )
-            return result.embeddings[0].values
-        except Exception as exc:
-            if attempt < retries - 1 and ("429" in str(exc) or "quota" in str(exc).lower()):
-                wait = 2 ** attempt
-                print(f"  Rate limited, retrying in {wait}s...")
-                time.sleep(wait)
-                continue
-            raise
-    raise RuntimeError("Embedding failed after max retries")
+_st_model: SentenceTransformer | None = None
+
+def embed_text(text: str) -> list[float]:
+    """Embed a single text string using local sentence-transformers model."""
+    global _st_model
+    if _st_model is None:
+        print(f"  Loading embedding model ({EMBEDDING_MODEL})...")
+        _st_model = SentenceTransformer(EMBEDDING_MODEL)
+    return _st_model.encode(text, normalize_embeddings=True).tolist()
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +212,7 @@ def upsert_chunks(client: QdrantClient, chunks: list[dict]) -> None:
 
 def main() -> None:
     # Validate env
-    for var in ["GOOGLE_API_KEY", "QDRANT_URL", "QDRANT_API_KEY"]:
+    for var in ["QDRANT_URL", "QDRANT_API_KEY"]:
         if not os.environ.get(var):
             raise EnvironmentError(f"Missing required environment variable: {var}")
 
