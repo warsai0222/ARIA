@@ -1,0 +1,67 @@
+name: Deploy to HuggingFace Spaces
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'data/varshith.json'   # handled by update_vectors.yml
+
+jobs:
+  lint:
+    name: Syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check all Python files parse cleanly
+        run: |
+          python - <<'EOF'
+          import ast, os, sys
+          errors = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if not d.startswith('.')]
+              for f in files:
+                  if f.endswith('.py'):
+                      path = os.path.join(root, f)
+                      try:
+                          with open(path) as fh:
+                              ast.parse(fh.read())
+                          print(f"✓ {path}")
+                      except SyntaxError as e:
+                          print(f"✗ {path}: {e}")
+                          errors.append(path)
+          if errors:
+              print(f"\n{len(errors)} syntax error(s) — aborting deploy")
+              sys.exit(1)
+          print("\nAll files OK")
+          EOF
+
+  deploy:
+    name: Push to HuggingFace Spaces
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: false
+
+      - name: Configure git
+        run: |
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Push to HuggingFace Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          # Set HF_SPACE_REPO in GitHub secrets as:
+          # https://huggingface.co/spaces/YOUR_HF_USERNAME/aria
+          HF_SPACE_REPO: ${{ secrets.HF_SPACE_REPO }}
+        run: |
+          # Extract username and space name from the repo URL
+          REPO_PATH="${HF_SPACE_REPO#https://huggingface.co/}"
+          git push "https://user:${HF_TOKEN}@huggingface.co/${REPO_PATH}" main --force
+          echo "✓ Deployed to ${HF_SPACE_REPO}"

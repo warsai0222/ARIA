@@ -1,0 +1,212 @@
+{
+  "about": {
+    "name": "Varshith Tipirneni",
+    "title": "AI Engineering Student | Building RAG Systems, LLM Pipelines & AI Agents",
+    "tagline": "I don't just call AI APIs — I build the pipelines behind them.",
+    "summary": "Varshith is an AI engineering student actively building a portfolio of production-grade AI systems to land a full-time AI engineering role. He specializes in RAG architecture, LLM evaluation, multi-agent orchestration, and full-stack AI application development. Every project he ships is end-to-end: data ingestion, backend pipeline, evaluation harness, and deployed demo.",
+    "status": "Actively seeking full-time AI engineering roles. Open to SWE roles with an AI/ML focus.",
+    "timezone": "Eastern Time (ET), USA",
+    "philosophy": "Build it properly or don't build it at all. Production failure modes, evaluation metrics, and system observability are non-negotiable — not afterthoughts. Each project is designed to demonstrate not just that an AI system works, but that it can be measured, debugged, and trusted."
+  },
+  "education": [
+    {
+      "degree": "Bachelor's / Graduate-level coursework in Computer Science",
+      "institution": "Currently enrolled",
+      "dates": "Ongoing",
+      "highlights": [
+        "Focused on AI/ML systems, NLP, and software engineering",
+        "Self-directed 8-week AI engineering roadmap: 8 hrs/day covering LLM systems, vector databases, RAG, multi-agent frameworks, and cloud deployment",
+        "Completed Week 4-5: LLM observability, function calling, prompt engineering patterns, context window management, systems design for AI at scale"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "role": "AI Engineering Student (Self-Directed)",
+      "company": "Independent / Portfolio Projects",
+      "dates": "2024 – Present",
+      "type": "self-directed",
+      "impact_bullets": [
+        "Built 5 end-to-end AI systems from scratch: RAG classifier, research QA pipeline, hallucination benchmark, red-teaming framework, and predictive sports app",
+        "Deployed two projects to production: HybridRAG on HuggingFace Spaces + Neon PostgreSQL; portfolio at Netlify",
+        "Wrote production-grade security layers: prompt injection detection (14 patterns), rate limiting, CORS, input sanitization",
+        "Implemented and evaluated 6 prompt engineering techniques on TruthfulQA; achieved 60pp hallucination reduction with best technique"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "HybridRAG",
+      "status": "Shipped — deployed and live",
+      "description": "A production-grade pharma MLR claim compliance classifier that uses hybrid retrieval-augmented generation to classify marketing claims as supported, partially supported, off-label, or insufficient. Built for the pharmaceutical/life sciences domain where regulatory accuracy is critical.",
+      "problem": "Pharmaceutical marketing claims must comply with FDA MLR (Medical, Legal, Regulatory) standards. Manual review is slow and inconsistent. HybridRAG automates claim classification with explainable AI.",
+      "architecture": "FastAPI backend with Gemini Flash LLM. Data pipeline: FDA OPDP scraper → SHA-256 dedup → embedding generation → Neon PostgreSQL with pgvector. Retrieval quality gate ensures classification only proceeds when retrieved context is sufficiently relevant. RAGAS evaluation harness (5 metrics) for offline and live eval.",
+      "tech_stack": ["Python", "FastAPI", "Gemini Flash", "Neon PostgreSQL", "pgvector", "RAGAS", "Docker", "HuggingFace Spaces"],
+      "key_features": [
+        "SHA-256 deduplication to prevent re-ingesting scraped data",
+        "Retrieval quality gate: rejects low-confidence retrievals before LLM call",
+        "Prompt injection detection with 14 pattern checks",
+        "Rate limiting and CORS-locked endpoints",
+        "RAGAS evaluation: context precision, recall, faithfulness, answer relevancy, and context entity recall",
+        "GitHub Actions CI/CD for automated ingestion"
+      ],
+      "results": "Deployed to HuggingFace Spaces + Neon. Fresh eval (30 cases): 40% accuracy — off_label and insufficient_data labels identified as needing knowledge base improvement. Eval results logged for continuous improvement.",
+      "links": {
+        "github": "https://github.com/varshith-tipirneni/HybridRAG",
+        "demo": "https://hybridrag.netlify.app",
+        "hf_spaces": "Deployed on HuggingFace Spaces"
+      },
+      "resume_bullets": [
+        "Built pharma MLR claim compliance classifier using RAG with Gemini Flash; deployed to HuggingFace Spaces + Neon PostgreSQL",
+        "Implemented production security: 14-pattern prompt injection guard, rate limiter, SHA-256 dedup pipeline",
+        "Evaluated with RAGAS (5 metrics) across 30 fresh cases; identified label imbalance for iterative KB improvement"
+      ]
+    },
+    {
+      "name": "PRISM",
+      "status": "Phase 2 complete — tested on real arXiv papers",
+      "description": "A multi-document research intelligence pipeline that ingests arXiv papers, builds a hybrid retrieval index (BM25 + dense), generates structured intelligence briefs, and detects contradictions across papers. Built for researchers and analysts who need to synthesize findings across multiple sources quickly.",
+      "problem": "Reading and synthesizing 5-10 research papers for a literature review takes hours. PRISM does it in seconds: fetch papers, extract key findings, identify conflicts, generate a structured brief.",
+      "architecture": "Phase 1: single-document QA (fetch → parse → chunk → embed → store → answer). Phase 2: multi-document with hybrid BM25 + Qdrant dense retrieval, RRF fusion, structured brief generation (Groq JSON mode), cross-document conflict detection. Local Qdrant vector store.",
+      "tech_stack": ["Python", "Qdrant", "BM25", "sentence-transformers", "Groq (Llama 3.1)", "pdfplumber", "feedparser", "RAGAS"],
+      "key_features": [
+        "Hybrid retrieval: BM25 (keyword) + dense (semantic) with Reciprocal Rank Fusion",
+        "Overlapping window chunker (chunk_size=1000, overlap=200) to preserve context across boundaries",
+        "Structured intelligence brief: Groq JSON mode with max_tokens=4096",
+        "Cross-document conflict detector: flags contradicting findings across papers",
+        "Multi-document ingestion with deduplication",
+        "Local RAGAS metrics: context_overlap, token_f1, exact_match"
+      ],
+      "results": "Phase 2 tested against real arXiv papers. Hybrid retrieval demonstrably outperforms dense-only on follow-up questions and multi-hop reasoning.",
+      "links": {
+        "github": "https://github.com/varshith-tipirneni/PRISM"
+      },
+      "resume_bullets": [
+        "Built multi-document research QA pipeline with BM25+dense hybrid retrieval (RRF fusion) over local Qdrant; tested on real arXiv papers",
+        "Implemented cross-document conflict detection and structured brief generation using Groq JSON mode"
+      ]
+    },
+    {
+      "name": "HallucinationBenchmark",
+      "status": "Complete — results published",
+      "description": "A systematic benchmark evaluating 6 prompt engineering techniques for reducing hallucination in Claude models (Haiku and Sonnet) on TruthfulQA. Uses a custom LLM-as-judge (Claude Sonnet via DeepEval) instead of OpenAI, tracked in MLflow.",
+      "problem": "LLM hallucination rates vary widely based on prompting strategy. Which technique works best, for which model, and in which question categories? This benchmark answers it with data.",
+      "architecture": "6 experiment configs (baseline, few-shot, CoT, JSON mode, system-prompt-v1, system-prompt-v2) × 2 models (Haiku, Sonnet) on TruthfulQA MCQ1. DeepEval HallucinationMetric with ClaudeJudge. Results tracked in MLflow (SQLite backend). Per-category analysis across 38 categories.",
+      "tech_stack": ["Python", "Anthropic SDK", "DeepEval", "MLflow", "TruthfulQA"],
+      "key_features": [
+        "Custom ClaudeJudge replacing OpenAI judge in DeepEval",
+        "6 prompt engineering techniques evaluated systematically",
+        "Per-category hallucination rates (38 categories from TruthfulQA)",
+        "MLflow experiment tracking with full reproducibility",
+        "Interactive HTML dashboard with real data"
+      ],
+      "results": "Best technique: system-prompt-v2 → 39.7% hallucination rate, a 60.3pp reduction vs baseline (Haiku: 18.4%, Sonnet: 15.4% baseline). Key finding: Chain-of-Thought made Superstitions category worse. Temperature 0.3 produced 0pp improvement. Results dashboard deployed as HTML.",
+      "links": {
+        "github": "https://github.com/varshith-tipirneni/HallucinationBenchmark"
+      },
+      "resume_bullets": [
+        "Benchmarked 6 prompt engineering techniques on TruthfulQA across 38 categories; system-prompt-v2 achieved 60pp hallucination reduction",
+        "Built custom LLM-as-judge (ClaudeJudge) replacing OpenAI in DeepEval; tracked all experiments in MLflow"
+      ]
+    },
+    {
+      "name": "RedTeamAgent",
+      "status": "In progress — core system complete",
+      "description": "A LangGraph-based multi-agent red-teaming system that automatically discovers vulnerabilities in LLM-powered chatbots. A victim HR chatbot (Groq/Llama 3.1) faces 5 specialized attack agents (prompt injection, jailbreak, data extraction, goal hijack, hallucination), scored by a Claude Sonnet judge.",
+      "problem": "LLM systems have security vulnerabilities that are hard to discover manually. RedTeamAgent automates adversarial probing across 5 attack categories, provides quantified vulnerability scores, and drives adaptive escalation when defenses are detected.",
+      "architecture": "Two services: victim_chatbot (FastAPI, Groq/Llama 3.1 8B, 4-layer defense: input patterns + hardened system prompt + output scan + turn drift) and red_team_agent (LangGraph orchestrator, 5 attack agents, Claude Sonnet generator + judge, weighted vulnerability scoring with canary breach floor). Dashboard with per-layer defense toggles.",
+      "tech_stack": ["Python", "LangGraph", "FastAPI", "Groq (Llama 3.1 8B)", "Anthropic Claude Sonnet", "Neon PostgreSQL"],
+      "key_features": [
+        "5 specialized attack agents: PromptInjection, Jailbreak, DataExtraction, GoalHijack, Hallucination",
+        "Claude Sonnet judge evaluates output harm (not just technique bypass)",
+        "Canary tokens in knowledge base — breach floors vulnerability score at 7.0",
+        "Round 2 adaptive escalation based on Round 1 failures",
+        "Live dashboard with 4 defense layer toggles",
+        "LangGraph state machine: run_attack_agents → score → escalate → report"
+      ],
+      "results": "Core red-teaming loop working. Victim chatbot successfully switched from Claude to Groq so defense layers have measurable effect. Layer 2 (hardened system prompt) toggle added. Next: all-layers-off vs all-layers-on comparison for portfolio story.",
+      "links": {
+        "github": "https://github.com/varshith-tipirneni/RedTeamAgent"
+      },
+      "resume_bullets": [
+        "Built LangGraph multi-agent red-teaming system with 5 attack agents, Claude Sonnet judge, and adaptive escalation",
+        "Implemented 4-layer defense pipeline (input filter, hardened prompt, output scan, turn drift) with live dashboard toggles"
+      ]
+    },
+    {
+      "name": "WorldCup2026Predictor",
+      "status": "Shipped — all 45 tickets complete",
+      "description": "A full-stack World Cup 2026 prediction app with Monte Carlo simulation, bracket visualization, and a live match center. Built end-to-end in a single sprint: 45 tickets from scratch to working app.",
+      "architecture": "React frontend (Vite) + FastAPI backend + SQLite. Monte Carlo match simulation, bracket progression logic, live match polling engine (minute-by-minute replay), FIFA-style Match Center page.",
+      "tech_stack": ["Python", "FastAPI", "React", "SQLite", "SQLAlchemy"],
+      "key_features": [
+        "Monte Carlo simulation for match outcome prediction",
+        "Live match center with 3-second polling and event ticker",
+        "Full bracket visualization (group stage through final)",
+        "16 backend tests, all green"
+      ],
+      "links": {
+        "github": "https://github.com/varshith-tipirneni/WorldCup2026Predictor"
+      }
+    }
+  ],
+  "skills": {
+    "languages": ["Python", "JavaScript", "TypeScript", "SQL", "Bash"],
+    "ai_ml": ["RAG", "LangChain", "LangGraph", "LLM Evaluation", "Prompt Engineering", "Vector Databases", "BM25", "Hybrid Retrieval", "RAGAS", "MLflow", "Groq", "Gemini Flash", "Anthropic Claude", "HuggingFace"],
+    "backend": ["FastAPI", "REST APIs", "Pydantic", "asyncio", "rate limiting", "prompt injection detection"],
+    "databases": ["Neon PostgreSQL", "pgvector", "Qdrant", "SQLite", "SQLAlchemy"],
+    "devops": ["Docker", "GitHub Actions", "HuggingFace Spaces", "Netlify", "CI/CD"],
+    "frontend": ["React", "Vite", "HTML/CSS/JS"],
+    "testing_eval": ["RAGAS", "DeepEval", "MLflow", "pytest"]
+  },
+  "faq": [
+    {
+      "q": "Is Varshith open to work?",
+      "a": "Yes — Varshith is actively seeking full-time AI engineering roles. He's especially interested in positions involving RAG systems, LLM pipelines, AI agents, or applied ML. He's available immediately and based in the Eastern time zone."
+    },
+    {
+      "q": "What makes Varshith different from other AI engineering candidates?",
+      "a": "Most candidates call AI APIs. Varshith builds the infrastructure around them: custom RAG pipelines with hybrid retrieval, evaluation harnesses with real metrics, multi-agent orchestration with LangGraph, and production security layers. Every project ships with an eval story and failure mode analysis — not just a working demo."
+    },
+    {
+      "q": "What is Varshith's preferred tech stack?",
+      "a": "Python + FastAPI for the backend, Groq or Gemini for the LLM, Qdrant for vector search, and GitHub Actions for CI/CD. For multi-agent work: LangGraph. For evaluation: RAGAS and DeepEval. He's comfortable adapting to any stack a team already uses."
+    },
+    {
+      "q": "What types of AI engineering roles is Varshith targeting?",
+      "a": "AI Engineer, LLM Engineer, ML Engineer, Applied AI Engineer, or Software Engineer with a strong AI/ML focus. He's interested in teams building LLM-powered products, internal AI tooling, or AI infrastructure."
+    },
+    {
+      "q": "Has Varshith deployed anything to production?",
+      "a": "Yes. HybridRAG is live on HuggingFace Spaces with Neon PostgreSQL as the backend database. His portfolio is deployed to Netlify. Both include CI/CD pipelines via GitHub Actions."
+    },
+    {
+      "q": "What's Varshith's experience with RAG?",
+      "a": "Deep. He built HybridRAG (pharma MLR classifier with retrieval quality gates and RAGAS evaluation) and PRISM (multi-document research pipeline with BM25 + dense hybrid retrieval and RRF fusion). He understands the full pipeline: chunking strategy, embedding models, vector store selection, retrieval quality metrics, and LLM grounding. ARIA — the chatbot you're using right now — is also a RAG system he built."
+    },
+    {
+      "q": "How can I contact Varshith?",
+      "a": "Email: varshith.tipirneni@gmail.com. You can also find him on LinkedIn and GitHub (links in his portfolio). He responds quickly."
+    },
+    {
+      "q": "What is Varshith currently working on?",
+      "a": "He just finished WorldCup2026Predictor (all 45 tickets complete) and is building ARIA — this chatbot. He's also partway through RedTeamAgent. His roadmap prioritizes shipping portfolio-quality projects that demonstrate end-to-end AI engineering skills."
+    },
+    {
+      "q": "What LLM evaluation experience does Varshith have?",
+      "a": "Extensive. He built a systematic hallucination benchmark across 6 prompt engineering techniques on TruthfulQA (38 categories, 2 Claude models) with a custom LLM-as-judge. He uses RAGAS for RAG evaluation (5 metrics). He understands the difference between online and offline eval, and how to build reproducible eval harnesses with MLflow."
+    },
+    {
+      "q": "Tell me about Varshith's security engineering experience",
+      "a": "In HybridRAG, he built a production security layer from scratch: 14-pattern prompt injection detection, IP-based rate limiting, input sanitization, and CORS locking. In RedTeamAgent, he built the other side — adversarial attack agents that probe for those same vulnerabilities. This gives him an unusually complete picture of LLM system security."
+    }
+  ],
+  "social_proof": {
+    "email": "varshith.tipirneni@gmail.com",
+    "portfolio": "https://varshith.netlify.app",
+    "github": "https://github.com/varshith-tipirneni",
+    "linkedin": "https://linkedin.com/in/varshith-tipirneni",
+    "hf_spaces": "https://huggingface.co/varshith-tipirneni",
+    "hybridrag_demo": "https://hybridrag.netlify.app"
+  }
+}
