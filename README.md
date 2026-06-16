@@ -2,7 +2,7 @@
 title: ARIA
 emoji: 🤖
 colorFrom: yellow
-colorTo: orange
+colorTo: yellow
 sdk: docker
 pinned: false
 ---
