@@ -29,13 +29,14 @@ from dotenv import load_dotenv
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 load_dotenv()
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qdrant_models
 
 COLLECTION = "aria_chunks"
 VECTOR_DIM = 768
-EMBEDDING_MODEL = "models/text-embedding-004"
+EMBEDDING_MODEL = "text-embedding-004"
 DATA_PATH = Path(__file__).resolve().parents[1] / "data" / "varshith.json"
 
 
@@ -153,15 +154,18 @@ def build_chunks(data: dict) -> list[dict]:
 
 def embed_text(text: str, retries: int = 3) -> list[float]:
     """Embed a single text string using Google text-embedding-004."""
+    client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
     for attempt in range(retries):
         try:
-            result = genai.embed_content(
+            result = client.models.embed_content(
                 model=EMBEDDING_MODEL,
-                content=text,
-                task_type="retrieval_document",
-                output_dimensionality=VECTOR_DIM,
+                contents=text,
+                config=genai_types.EmbedContentConfig(
+                    task_type="retrieval_document",
+                    output_dimensionality=VECTOR_DIM,
+                ),
             )
-            return result["embedding"]
+            return result.embeddings[0].values
         except Exception as exc:
             if attempt < retries - 1 and ("429" in str(exc) or "quota" in str(exc).lower()):
                 wait = 2 ** attempt
@@ -225,8 +229,6 @@ def main() -> None:
     for var in ["GOOGLE_API_KEY", "QDRANT_URL", "QDRANT_API_KEY"]:
         if not os.environ.get(var):
             raise EnvironmentError(f"Missing required environment variable: {var}")
-
-    genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
     print(f"Loading knowledge base from {DATA_PATH}...")
     with open(DATA_PATH) as f:

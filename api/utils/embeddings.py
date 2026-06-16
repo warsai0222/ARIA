@@ -1,5 +1,5 @@
 """
-Embedding module — Google text-embedding-004.
+Embedding module — Google text-embedding-004 via google-genai SDK.
 
 Provides a single embed() function used by both the ingest script
 and the hybrid retrieval pipeline at query time.
@@ -10,18 +10,19 @@ from __future__ import annotations
 import os
 import time
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types as genai_types
 
-EMBEDDING_MODEL = "models/text-embedding-004"
+EMBEDDING_MODEL = "text-embedding-004"
 VECTOR_DIM = 768
-_configured = False
+_client: genai.Client | None = None
 
 
-def _ensure_configured() -> None:
-    global _configured
-    if not _configured:
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-        _configured = True
+def _get_client() -> genai.Client:
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
+    return _client
 
 
 def embed(text: str, task_type: str = "retrieval_query", retries: int = 3) -> list[float]:
@@ -36,16 +37,18 @@ def embed(text: str, task_type: str = "retrieval_query", retries: int = 3) -> li
     Returns:
         768-dimensional embedding vector.
     """
-    _ensure_configured()
+    client = _get_client()
     for attempt in range(retries):
         try:
-            result = genai.embed_content(
+            result = client.models.embed_content(
                 model=EMBEDDING_MODEL,
-                content=text,
-                task_type=task_type,
-                output_dimensionality=VECTOR_DIM,
+                contents=text,
+                config=genai_types.EmbedContentConfig(
+                    task_type=task_type,
+                    output_dimensionality=VECTOR_DIM,
+                ),
             )
-            return result["embedding"]
+            return result.embeddings[0].values
         except Exception as exc:
             is_rate_limit = "429" in str(exc) or "quota" in str(exc).lower()
             if is_rate_limit and attempt < retries - 1:
